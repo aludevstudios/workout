@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>100-Day Workout Stack</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .canvas-container {
+      position: relative;
+      margin: 0.5rem 0 1.25rem 0;
+    }
+
+    canvas {
+      display: block;
+      background: transparent;
+    }
+
+    /* Stack Container */
+    .stack-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      perspective: 1000px;
+    }
+
+    /* Visual depth effect for underlying stack */
+    .stack-layer {
+      position: absolute;
+      left: 0; right: 0;
+      height: 100%;
+      border-radius: 1rem;
+      background-color: #162032;
+      border: 1px solid #283548;
+      transition: all 0.3s ease;
+      z-index: 1;
+    }
+    .layer-2 { top: 12px; transform: scale(0.92); opacity: 0.4; }
+    .layer-1 { top: 6px; transform: scale(0.96); opacity: 0.7; }
+
+    .workout-card {
+      position: relative;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      z-index: 2;
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
+    }
+
+    .workout-card.cleared {
+      transform: translateY(-40px) scale(0.95);
+      opacity: 0;
+    }
+
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .day-badge {
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+
+    .category-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .workout-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      line-height: 1.25;
+    }
+
+    .workout-description {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1.25rem;
+    }
+
+    .exercise-list {
+      list-style: none;
+      margin-bottom: 1.5rem;
+    }
+
+    .exercise-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0.75rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .exercise-item span.reps {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .action-btn {
+      width: 100%;
+      background: var(--success);
+      color: #052e16;
+      border: none;
+      padding: 0.9rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.5rem;
+      transition: filter 0.2s, transform 0.1s;
+    }
+
+    .action-btn:hover {
+      filter: brightness(1.1);
+    }
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .footer-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.25rem;
+      max-width: 440px;
+      width: 100%;
+      padding: 0 0.5rem;
+    }
+
+    .secondary-btn {
+      background: transparent;
+      border: 1px solid #334155;
+      color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: 0.5rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .secondary-btn:hover {
+      border-color: #64748b;
+      color: var(--text-main);
+    }
+
+    /* Completed state */
+    .all-done {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+    .all-done h2 { font-size: 1.6rem; color: var(--success); margin-bottom: 0.5rem; }
+    .all-done p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>100-Day Workout Stack</h1>
+  </header>
+
+  <!-- HTML5 Canvas Visual Progress -->
+  <div class="canvas-container">
+    <canvas id="progressCanvas" width="220" height="110"></canvas>
+  </div>
+
+  <!-- The Stack of Cards -->
+  <div class="stack-wrapper">
+    <div class="stack-layer layer-2" id="layer2"></div>
+    <div class="stack-layer layer-1" id="layer1"></div>
+    
+    <main class="workout-card" id="activeCard">
+      <!-- Populated dynamically via JS -->
+    </main>
+  </div>
+
+  <div class="footer-controls">
+    <button class="secondary-btn" id="undoBtn">↩ Undo Last Clear</button>
+    <button class="secondary-btn" id="resetBtn">↻ Reset All</button>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. PLUGGABLE 100-DAY WORKOUT PLAN DATA
+    // Replace or populate this array with your 100 days
+    // ==========================================
+    const DEFAULT_WORKOUTS = [
+      {
+        day: 1,
+        title: "Upper Body Ignition",
+        category: "Push & Pull",
+        description: "Establish baseline mechanics and shoulder stability.",
+        exercises: [
+          { name: "Standard Push-ups", reps: "3 sets × 10 reps" },
+          { name: "Inverted Rows or Doorway Pulls", reps: "3 sets × 12 reps" },
+          { name: "Overhead Dumbbell / Pike Push-ups", reps: "3 sets × 8 reps" },
+          { name: "Plank Hold", reps: "3 sets × 45 sec" }
+        ]
+      },
+      {
+        day: 2,
+        title: "Lower Body Foundation",
+        category: "Legs & Posterior",
+        description: "Focus on knee tracking, full squat depth, and glute activation.",
+        exercises: [
+          { name: "Bodyweight / Goblet Squats", reps: "4 sets × 12 reps" },
+          { name: "Romanian Deadlifts (DB or Band)", reps: "3 sets × 10 reps" },
+          { name: "Alternating Reverse Lunges", reps: "3 sets × 10 per leg" },
+          { name: "Standing Calf Raises", reps: "3 sets × 20 reps" }
+        ]
+      },
+      {
+        day: 3,
+        title: "High-Intensity Conditioning",
+        category: "Cardio & Core",
+        description: "Elevate heart rate and build functional movement speed.",
+        exercises: [
+          { name: "Jump Rope or Jumping Jacks", reps: "4 rounds × 60 sec" },
+          { name: "Mountain Climbers", reps: "4 rounds × 40 sec" },
+          { name: "Bear Crawl Holds", reps: "3 sets × 30 sec" },
+          { name: "Bicycle Crunches", reps: "3 sets × 15 per side" }
+        ]
+      }
+    ];
+
+    // Generate placeholder days up to 100 so the app is fully functional right now
+    const WORKOUT_STACK = [...DEFAULT_WORKOUTS];
+    for (let i = 4; i <= 100; i++) {
+      WORKOUT_STACK.push({
+        day: i,
+        title: `Workout Session ${i}`,
+        category: i % 7 === 0 ? "Active Recovery" : (i % 2 === 0 ? "Lower Body & Core" : "Upper Body & Conditioning"),
+        description: i % 7 === 0 ? "Focus on mobility, deep breathing, and light walking." : "Progressive volume session.",
+        exercises: [
+          { name: "Core Compound Movement", reps: "4 sets × 10 reps" },
+          { name: "Secondary Unilateral Exercise", reps: "3 sets × 12 reps" },
+          { name: "Auxiliary Isolation", reps: "3 sets × 15 reps" },
+          { name: "Core Stabilization", reps: "3 sets × 45 sec" }
+        ]
+      });
+    }
+
+    // ==========================================
+    // 2. STATE PERSISTENCE (LocalStorage)
+    // ==========================================
+    const STORAGE_KEY = "workout_100_stack_state";
+
+    function loadState() {
+      const data = localStorage.getItem(STORAGE_KEY);
+      if (data) {
+        try { return JSON.parse(data); } catch(e) {}
+      }
+      return { currentIndex: 0, clearedHistory: [] };
+    }
+
+    function saveState(state) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let appState = loadState();
+
+    // ==========================================
+    // 3. CANVAS PROGRESS VISUALIZATION
+    // ==========================================
+    const canvas = document.getElementById("progressCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function renderCanvasProgress() {
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+
+      const total = WORKOUT_STACK.length;
+      const current = appState.currentIndex;
+      const percent = Math.min(100, Math.round((current / total) * 100));
+
+      const cx = w / 2;
+      const cy = h - 15;
+      const radius = 65;
+
+      // Background Arc (Semi-circle)
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, Math.PI, 2 * Math.PI, false);
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineCap = "round";
+      ctx.stroke();
+
+      // Foreground Progress Arc
+      if (percent > 0) {
+        const progressEnd = Math.PI + (Math.PI * (percent / 100));
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, Math.PI, progressEnd, false);
+        ctx.lineWidth = 10;
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineCap = "round";
+        ctx.stroke();
+      }
+
+      // Center Percentage Text
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 20px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${percent}%`, cx, cy - 18);
+
+      // Sub-label
+      ctx.fillStyle = "#94a3b8";
+      ctx.font = "11px sans-serif";
+      ctx.fillText(`${current} / ${total} Cleared`, cx, cy - 2);
+    }
+
+    // ==========================================
+    // 4. UI RENDER & STACK CONTROLS
+    // ==========================================
+    const cardEl = document.getElementById("activeCard");
+    const layer1 = document.getElementById("layer1");
+    const layer2 = document.getElementById("layer2");
+
+    function renderCard() {
+      const idx = appState.currentIndex;
+      const remaining = WORKOUT_STACK.length - idx;
+
+      // Update background depth visual
+      layer1.style.display = remaining > 1 ? "block" : "none";
+      layer2.style.display = remaining > 2 ? "block" : "none";
+
+      if (idx >= WORKOUT_STACK.length) {
+        cardEl.innerHTML = `
+          <div class="all-done">
+            <h2>🎉 100 Days Conquered!</h2>
+            <p>You have cleared all 100 workout sessions in the stack.</p>
+            <button class="action-btn" onclick="resetChallenge()">Restart Challenge</button>
+          </div>
+        `;
+        renderCanvasProgress();
+        return;
+      }
+
+      const workout = WORKOUT_STACK[idx];
+      cardEl.className = "workout-card"; // Reset animation classes
+      
+      const exercisesHTML = workout.exercises.map(ex => `
+        <li class="exercise-item">
+          <span>${ex.name}</span>
+          <span class="reps">${ex.reps}</span>
+        </li>
+      `).join("");
+
+      cardEl.innerHTML = `
+        <div class="card-meta">
+          <span class="day-badge">Day ${workout.day} of ${WORKOUT_STACK.length}</span>
+          <span class="category-label">${workout.category}</span>
+        </div>
+        <h2 class="workout-title">${workout.title}</h2>
+        <p class="workout-description">${workout.description}</p>
+        <ul class="exercise-list">
+          ${exercisesHTML}
+        </ul>
+        <button class="action-btn" id="clearBtn">
+          ✓ Clear Workout & Next
+        </button>
+      `;
+
+      document.getElementById("clearBtn").addEventListener("click", clearCurrentWorkout);
+      renderCanvasProgress();
+    }
+
+    function clearCurrentWorkout() {
+      // Animate top card pop
+      cardEl.classList.add("cleared");
+
+      setTimeout(() => {
+        appState.clearedHistory.push({
+          day: WORKOUT_STACK[appState.currentIndex].day,
+          clearedAt: new Date().toISOString()
+        });
+        appState.currentIndex++;
+        saveState(appState);
+        renderCard();
+      }, 250);
+    }
+
+    function undoLastClear() {
+      if (appState.currentIndex > 0) {
+        appState.currentIndex--;
+        appState.clearedHistory.pop();
+        saveState(appState);
+        renderCard();
+      }
+    }
+
+    function resetChallenge() {
+      if (confirm("Are you sure you want to reset your 100-day stack? This will clear your progress.")) {
+        appState = { currentIndex: 0, clearedHistory: [] };
+        saveState(appState);
+        renderCard();
+      }
+    }
+
+    document.getElementById("undoBtn").addEventListener("click", undoLastClear);
+    document.getElementById("resetBtn").addEventListener("click", resetChallenge);
+
+    // Initial render
+    renderCard();
+  </script>
+</body>
+</html>
