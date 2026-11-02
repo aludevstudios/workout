@@ -34,23 +34,6 @@
     header { text-align: center; margin-bottom: 0.75rem; }
     h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
 
-    .primer-btn {
-      margin-top: 0.5rem;
-      background: rgba(245, 158, 11, 0.15);
-      border: 1px solid var(--warning);
-      color: #fbbf24;
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      transition: all 0.2s;
-    }
-    .primer-btn:hover { background: rgba(245, 158, 11, 0.25); }
-
     .canvas-container { position: relative; margin: 0.5rem 0 1rem 0; }
     canvas { display: block; background: transparent; }
 
@@ -127,10 +110,6 @@
       border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
     }
     .secondary-btn:hover { border-color: #64748b; color: var(--text-main); }
-
-    .primer-step { padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem; margin-bottom: 0.6rem; }
-    .primer-step-title { font-weight: 700; font-size: 0.9rem; color: #fbbf24; margin-bottom: 0.2rem; }
-    .primer-step-desc { font-size: 0.82rem; color: var(--text-muted); }
 
     .all-done { text-align: center; padding: 2.5rem 1.5rem; }
   </style>
@@ -316,14 +295,6 @@
         renderCard();
       }
     }
-
-    const primerContent = document.getElementById("primerContent");
-    primerContent.innerHTML = window.PRE_GAME_PRIMER.map(p => `
-      <div class="primer-step">
-        <div class="primer-step-title">${p.minute}: ${p.title}</div>
-        <div class="primer-step-desc">${p.desc}</div>
-      </div>
-    `).join("");
     
     document.getElementById("undoBtn").addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
