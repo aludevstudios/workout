@@ -1,9 +1,9 @@
 /**
- * 100-Day Bilateral Workout Plan & Periodization Data
- * 
- * To modify exercises, rep schemes, or cues, simply edit the templates below.
+ * 100-Day Bilateral Exercise Plan Curriculum
+ * 100% Bilateral Programming: Workout A ➔ Workout B ➔ Workout C
  */
 
+// 1. Core Routine Templates
 const WORKOUT_TEMPLATES = {
   A: {
     code: "Workout A",
@@ -27,7 +27,7 @@ const WORKOUT_TEMPLATES = {
       { name: "Alternating Cossack Squats", protocol: "8 reps / leg", cue: "Shift weight smoothly from left to right lateral lunge, heels grounded." },
       { name: "Bilateral Bent-Knee Calf Raises", protocol: "15 reps (3s down)", cue: "Bend knees 20° on flat ground; raise and lower heels simultaneously." },
       { name: "Kettlebell Goblet Squat with Pause", protocol: "10 reps (3s pause)", cue: "Hold KB at chest; squat symmetrically with equal weight on both feet." },
-      { name: "Circuit Note", protocol: "2–3 rounds (~11 min)", cue: "Repeat Cossacks, Bent-Knee Raises, and Goblet Squats." },
+      { name: "Circuit Protocol", protocol: "2–3 rounds (~11 min)", cue: "Repeat Cossacks, Bent-Knee Raises, and Goblet Squats." },
       { name: "Bilateral Frog Stretch Rock-backs (Cool-down)", protocol: "60 sec total", cue: "Widen knees, feet turned out; gently rock hips back to stretch groins." }
     ]
   },
@@ -40,37 +40,45 @@ const WORKOUT_TEMPLATES = {
       { name: "KB Bilateral Romanian Deadlifts / Swings", protocol: "12–15 reps", cue: "Hinge at hips with feet shoulder-width; drive through both feet equally." },
       { name: "Copenhagen Plank (Short Lever)", protocol: "20–30s / side", cue: "Rest top knee on couch or bench; match time equally on both sides." },
       { name: "Standing Kettlebell Halos", protocol: "6 CW / 6 CCW", cue: "Keep hips square and ribs pinned down while circling kettlebell." },
-      { name: "Circuit Note", protocol: "2–3 rounds (~11 min)", cue: "Repeat RDLs/Swings, Copenhagen Planks, and Halos." },
+      { name: "Circuit Protocol", protocol: "2–3 rounds (~11 min)", cue: "Repeat RDLs/Swings, Copenhagen Planks, and Halos." },
       { name: "Bilateral Supine Hamstring / Calf Floss (Cool-down)", protocol: "45 sec / leg", cue: "Pull leg up with towel; gently pump ankle back and forth." }
     ]
   }
 };
 
-/**
- * Builds the full 100-session sequential stack rotating A -> B -> C
- */
+// 2. 4-Minute Pre-Game Dynamic Primer
+const PRE_GAME_PRIMER = [
+  { minute: "Minute 1", title: "Ankle Hops & Pogo Bounces (60s)", desc: "Pre-heats Achilles tendons and calves without overloading insertion." },
+  { minute: "Minute 2", title: "Walking Lunges with Torso Twist (60s)", desc: "Activates quads and dynamically opens hip flexors evenly on both legs." },
+  { minute: "Minute 3", title: "Lateral Shuffles to Carioca (60s)", desc: "Wakes up adductors (groin) and abductors for rapid on-court cutting." },
+  { minute: "Minute 4", title: "Build-Up Accelerations (50% ➔ 80%) (60s)", desc: "Prepares central nervous system for sprints so muscles do not clamp down." }
+];
+
+// 3. 100-Session Generator Across 3 Phases
 const ROTATION = ["A", "B", "C"];
 const WORKOUT_STACK = [];
 
 for (let day = 1; day <= 100; day++) {
   const type = ROTATION[(day - 1) % 3];
   const template = WORKOUT_TEMPLATES[type];
-
-  let phaseName = "";
-  if (day <= 30) {
-    phaseName = "Phase 1: Mobilize & Reset";
-  } else if (day <= 70) {
-    phaseName = "Phase 2: Snowboard Specificity";
-  } else {
-    phaseName = "Phase 3: Alpine Endurance";
+  
+  let phase = "Phase 1: Mobilize & Reset";
+  if (day > 70) {
+    phase = "Phase 3: Alpine Endurance";
+  } else if (day > 30) {
+    phase = "Phase 2: Snowboard Specificity";
   }
 
   WORKOUT_STACK.push({
     day: day,
     rotationCode: template.code,
-    phase: phaseName,
+    phase: phase,
     title: template.title,
     description: template.description,
     exercises: template.exercises
   });
 }
+
+// Export for browser
+window.WORKOUT_STACK = WORKOUT_STACK;
+window.PRE_GAME_PRIMER = PRE_GAME_PRIMER;
