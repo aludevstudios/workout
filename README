@@ -1,0 +1,24 @@
+# 100-Day Workout Stack 🏋️‍♂️
+
+A minimalist, distraction-free 100-day exercise planner built as a physical-style card stack.
+
+## ✨ Features
+- **Card Stack UI**: Only today's workout is visible. No overwhelming 100-day calendar clutter.
+- **One-Tap Clear**: Clearing a workout animates the top card off the stack and surfaces the next day immediately.
+- **Interactive Canvas Visualizer**: An HTML5 Canvas arc rendering completion percentage, card count, and progress.
+- **Zero-Backend Persistence**: All progress, streak counts, and timestamps persist in browser `localStorage`.
+- **Fail-Safe Undo**: Undo accidental card clears with one click.
+- **Pluggable Data**: Easily update or replace the workout plan by editing the `WORKOUT_STACK` array in `index.html`.
+
+## 🚀 Live Demo
+Access the live application hosted via GitHub Pages:
+`https://<your-username>.github.io/<repo-name>/`
+
+## 🛠️ Local Development & Testing
+Run a quick local web server without installing any tools:
+```bash
+# Python 3
+python3 -m http.server 8080
+
+# Or Node.js
+npx serve
