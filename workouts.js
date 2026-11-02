@@ -157,13 +157,6 @@ const WORKOUT_TEMPLATES = {
   }
 };
 
-const PRE_GAME_PRIMER = [
-  { minute: "Minute 1", title: "Ankle Hops & Pogo Bounces (60s)", desc: "Pre-heats Achilles tendons and calves without overloading insertion." },
-  { minute: "Minute 2", title: "Walking Lunges with Torso Twist (60s)", desc: "Activates quads and dynamically opens hip flexors evenly on both legs." },
-  { minute: "Minute 3", title: "Lateral Shuffles to Carioca (60s)", desc: "Wakes up adductors (groin) and abductors for rapid on-court cutting." },
-  { minute: "Minute 4", title: "Build-Up Accelerations (50% ➔ 80%) (60s)", desc: "Prepares central nervous system for sprints so muscles do not clamp down." }
-];
-
 const ROTATION = ["A", "B", "C"];
 const WORKOUT_STACK = [];
 
@@ -189,4 +182,3 @@ for (let day = 1; day <= 100; day++) {
 }
 
 window.WORKOUT_STACK = WORKOUT_STACK;
-window.PRE_GAME_PRIMER = PRE_GAME_PRIMER;
