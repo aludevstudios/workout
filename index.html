@@ -83,10 +83,33 @@
     .workout-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.25; }
     .workout-description { font-size: 0.88rem; color: var(--text-muted); font-style: italic; line-height: 1.45; margin-bottom: 1.2rem; }
 
-    .exercise-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.6rem; }
-    .exercise-item { padding: 0.75rem 0.85rem; border-radius: 0.65rem; background: rgba(255, 255, 255, 0.025); border: 1px solid rgba(255, 255, 255, 0.05); }
+    .exercise-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    .exercise-item {
+      padding: 0.75rem 0.85rem; border-radius: 0.65rem; background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
     .exercise-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
+    .exercise-title-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
     .exercise-name { font-size: 0.92rem; font-weight: 600; }
+    
+    .media-badge {
+      font-size: 0.72rem;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      padding: 0.15rem 0.45rem;
+      border-radius: 0.35rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.2rem;
+      transition: background 0.2s, color 0.2s;
+    }
+    .media-badge:hover {
+      background: rgba(56, 189, 248, 0.25);
+      color: #e0f2fe;
+    }
+
     .exercise-protocol { color: var(--accent); font-weight: 700; font-size: 0.82rem; }
     .exercise-cue { font-size: 0.8rem; color: var(--text-muted); line-height: 1.35; }
 
@@ -158,10 +181,7 @@
     </div>
   </div>
 
-  <!-- 1. External Workout Plan File -->
   <script src="workouts.js"></script>
-
-  <!-- 2. Application Logic & Canvas Renderer -->
   <script>
     const STORAGE_KEY = "bilateral_100_stack_state";
 
@@ -179,7 +199,6 @@
 
     let appState = loadState();
 
-    // Canvas Progress Arc
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
 
@@ -220,7 +239,6 @@
       ctx.fillText(`${current} of ${total} Cleared`, cx, cy - 4);
     }
 
-    // Stack Card Rendering
     const cardEl = document.getElementById("activeCard");
     const layer1 = document.getElementById("layer1");
     const layer2 = document.getElementById("layer2");
@@ -249,15 +267,26 @@
       const workout = window.WORKOUT_STACK[idx];
       cardEl.className = "workout-card";
 
-      const exercisesHTML = workout.exercises.map(ex => `
-        <li class="exercise-item">
-          <div class="exercise-header">
-            <span class="exercise-name">${ex.name}</span>
-            <span class="exercise-protocol">${ex.protocol}</span>
-          </div>
-          <div class="exercise-cue">${ex.cue}</div>
-        </li>
-      `).join("");
+      const exercisesHTML = workout.exercises.map(ex => {
+        const mediaBtn = ex.media ? `
+          <a href="${ex.media.url}" target="_blank" rel="noopener noreferrer" class="media-badge">
+            ${ex.media.label}
+          </a>
+        ` : '';
+
+        return `
+          <li class="exercise-item">
+            <div class="exercise-header">
+              <div class="exercise-title-row">
+                <span class="exercise-name">${ex.name}</span>
+                ${mediaBtn}
+              </div>
+              <span class="exercise-protocol">${ex.protocol}</span>
+            </div>
+            <div class="exercise-cue">${ex.cue}</div>
+          </li>
+        `;
+      }).join("");
 
       cardEl.innerHTML = `
         <div class="card-meta">
@@ -313,7 +342,6 @@
       }
     }
 
-    // Populate and wire Pre-Game Primer Modal
     const modal = document.getElementById("primerModal");
     const primerContent = document.getElementById("primerContent");
     primerContent.innerHTML = window.PRE_GAME_PRIMER.map(p => `
@@ -330,7 +358,6 @@
     document.getElementById("undoBtn").addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
 
-    // Initial render
     renderCard();
   </script>
 </body>
