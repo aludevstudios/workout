@@ -128,16 +128,6 @@
     }
     .secondary-btn:hover { border-color: #64748b; color: var(--text-main); }
 
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px);
-      display: none; justify-content: center; align-items: center; padding: 1rem; z-index: 100;
-    }
-    .modal-card {
-      background: #1e293b; border: 1px solid #334155; border-radius: 1rem; max-width: 460px;
-      width: 100%; padding: 1.5rem; max-height: 90vh; overflow-y: auto;
-    }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-    .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
     .primer-step { padding: 0.75rem; background: rgba(255, 255, 255, 0.03); border-radius: 0.5rem; margin-bottom: 0.6rem; }
     .primer-step-title { font-weight: 700; font-size: 0.9rem; color: #fbbf24; margin-bottom: 0.2rem; }
     .primer-step-desc { font-size: 0.82rem; color: var(--text-muted); }
@@ -149,7 +139,6 @@
 
   <header>
     <h1>100-Day Bilateral Stack</h1>
-    <button class="primer-btn" id="openPrimerBtn">⚡ 4-Min Pre-Game Primer (Soccer / Tennis)</button>
   </header>
 
   <div class="canvas-container">
@@ -165,20 +154,6 @@
   <div class="footer-controls">
     <button class="secondary-btn" id="undoBtn">↩ Undo Last Clear</button>
     <button class="secondary-btn" id="resetBtn">↻ Reset All</button>
-  </div>
-
-  <!-- Primer Modal -->
-  <div class="modal-overlay" id="primerModal">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h2 style="font-size:1.15rem; color:#fbbf24;">⚡ 4-Minute Pre-Game Primer</h2>
-        <button class="modal-close" id="closePrimerBtn">&times;</button>
-      </div>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
-        Dynamic pre-match activation for soccer & tennis to prepare ankles, calves, and adductors.
-      </p>
-      <div id="primerContent"></div>
-    </div>
   </div>
 
   <script src="workouts.js"></script>
@@ -342,7 +317,6 @@
       }
     }
 
-    const modal = document.getElementById("primerModal");
     const primerContent = document.getElementById("primerContent");
     primerContent.innerHTML = window.PRE_GAME_PRIMER.map(p => `
       <div class="primer-step">
@@ -350,11 +324,7 @@
         <div class="primer-step-desc">${p.desc}</div>
       </div>
     `).join("");
-
-    document.getElementById("openPrimerBtn").onclick = () => modal.style.display = "flex";
-    document.getElementById("closePrimerBtn").onclick = () => modal.style.display = "none";
-    window.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
-
+    
     document.getElementById("undoBtn").addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
 
