@@ -15,7 +15,6 @@
       --accent-glow: rgba(56, 189, 248, 0.2);
       --phase-tag: #818cf8;
       --success: #22c55e;
-      --warning: #f59e0b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -37,7 +36,7 @@
     .canvas-container { position: relative; margin: 0.5rem 0 1rem 0; }
     canvas { display: block; background: transparent; }
 
-    .stack-wrapper { position: relative; width: 100%; max-width: 480px; }
+    .stack-wrapper { position: relative; width: 100%; max-width: 500px; }
     .stack-layer {
       position: absolute; left: 0; right: 0; height: 100%; border-radius: 1.25rem;
       background-color: #141f33; border: 1px solid #233148; transition: all 0.3s ease; z-index: 1;
@@ -47,7 +46,7 @@
 
     .workout-card {
       position: relative; background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1.25rem; padding: 1.5rem; box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
+      border-radius: 1.25rem; padding: 1.4rem; box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
       z-index: 2; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
     }
     .workout-card.cleared { transform: translateY(-40px) scale(0.95); opacity: 0; }
@@ -63,38 +62,89 @@
       font-weight: 600; padding: 0.25rem 0.55rem; border-radius: 9999px; border: 1px solid rgba(129, 140, 248, 0.3);
     }
     .rotation-tag { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
-    .workout-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.25; }
+    .workout-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.25; }
     .workout-description { font-size: 0.88rem; color: var(--text-muted); font-style: italic; line-height: 1.45; margin-bottom: 1.2rem; }
 
     .exercise-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    
     .exercise-item {
-      padding: 0.75rem 0.85rem; border-radius: 0.65rem; background: rgba(255, 255, 255, 0.025);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      padding: 0.65rem;
+      border-radius: 0.75rem;
+      background: rgba(255, 255, 255, 0.025);
       border: 1px solid rgba(255, 255, 255, 0.05);
     }
-    .exercise-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.25rem; }
-    .exercise-title-row { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; }
-    .exercise-name { font-size: 0.92rem; font-weight: 600; }
-    
-    .media-badge {
+
+    .thumb-link {
+      display: block;
+      width: 52px;
+      height: 52px;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .exercise-thumb {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: #0f172a;
+      transition: transform 0.2s;
+    }
+    .thumb-link:hover .exercise-thumb {
+      transform: scale(1.08);
+    }
+
+    .exercise-body {
+      flex-grow: 1;
+      min-width: 0;
+    }
+
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.2rem;
+      gap: 0.5rem;
+    }
+
+    .exercise-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .exercise-protocol {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .exercise-cue {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+      margin-bottom: 0.3rem;
+    }
+
+    .video-link {
       font-size: 0.72rem;
       color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      padding: 0.15rem 0.45rem;
-      border-radius: 0.35rem;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      gap: 0.2rem;
-      transition: background 0.2s, color 0.2s;
+      gap: 0.25rem;
+      font-weight: 600;
     }
-    .media-badge:hover {
-      background: rgba(56, 189, 248, 0.25);
-      color: #e0f2fe;
+    .video-link:hover {
+      text-decoration: underline;
     }
-
-    .exercise-protocol { color: var(--accent); font-weight: 700; font-size: 0.82rem; }
-    .exercise-cue { font-size: 0.8rem; color: var(--text-muted); line-height: 1.35; }
 
     .action-btn {
       width: 100%; background: var(--success); color: #052e16; border: none; padding: 0.9rem 1.25rem;
@@ -104,7 +154,7 @@
     .action-btn:hover { filter: brightness(1.1); }
     .action-btn:active { transform: scale(0.98); }
 
-    .footer-controls { display: flex; justify-content: space-between; margin-top: 1.25rem; max-width: 480px; width: 100%; padding: 0 0.5rem; }
+    .footer-controls { display: flex; justify-content: space-between; margin-top: 1.25rem; max-width: 500px; width: 100%; padding: 0 0.5rem; }
     .secondary-btn {
       background: transparent; border: 1px solid #334155; color: var(--text-muted); padding: 0.4rem 0.8rem;
       border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
@@ -222,22 +272,27 @@
       cardEl.className = "workout-card";
 
       const exercisesHTML = workout.exercises.map(ex => {
-        const mediaBtn = ex.media ? `
-          <a href="${ex.media.url}" target="_blank" rel="noopener noreferrer" class="media-badge">
-            ${ex.media.label}
-          </a>
-        ` : '';
+        const thumbHTML = ex.thumb 
+          ? `<a href="${ex.videoUrl || '#'}" target="_blank" rel="noopener noreferrer" class="thumb-link" title="Watch demonstration">
+               <img src="${ex.thumb}" alt="${ex.name}" class="exercise-thumb" loading="lazy" onerror="this.style.display='none'">
+             </a>`
+          : '';
+
+        const videoHTML = ex.videoUrl
+          ? `<a href="${ex.videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">▶ Video Demo ↗</a>`
+          : '';
 
         return `
           <li class="exercise-item">
-            <div class="exercise-header">
-              <div class="exercise-title-row">
-                <span class="exercise-name">${ex.name}</span>
-                ${mediaBtn}
+            ${thumbHTML}
+            <div class="exercise-body">
+              <div class="exercise-header">
+                <span class="exercise-name" title="${ex.name}">${ex.name}</span>
+                <span class="exercise-protocol">${ex.protocol}</span>
               </div>
-              <span class="exercise-protocol">${ex.protocol}</span>
+              <div class="exercise-cue">${ex.cue}</div>
+              ${videoHTML}
             </div>
-            <div class="exercise-cue">${ex.cue}</div>
           </li>
         `;
       }).join("");
@@ -295,7 +350,7 @@
         renderCard();
       }
     }
-    
+
     document.getElementById("undoBtn").addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
 
