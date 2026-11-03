@@ -8,7 +8,20 @@ A minimalist, distraction-free 100-day exercise planner built as a physical-styl
 - **Interactive Canvas Visualizer**: An HTML5 Canvas arc rendering completion percentage, card count, and progress.
 - **Zero-Backend Persistence**: All progress, streak counts, and timestamps persist in browser `localStorage`.
 - **Fail-Safe Undo**: Undo accidental card clears with one click.
+- **Exercise Photos & How-To**: Each exercise shows an animated two-frame photo; tap it (or "How to") for a larger view, what it targets, step-by-step instructions and a video link.
+- **Cross-Device Sync (optional)**: Progress can sync through a private GitHub Gist. See below.
 - **Pluggable Data**: Easily update or replace the workout plan by editing `WORKOUT_TEMPLATES`, `ROTATION`, or `TOTAL_DAYS` in `workouts.js`.
+
+## ☁️ Syncing Progress Across Devices
+Sync is optional and deliberately simple (not secure, meant for personal use):
+1. Create a GitHub token with only the **gist** scope: https://github.com/settings/tokens/new?scopes=gist&description=Workout%20Stack%20sync
+2. In the app, tap **Sync**, paste the token, and tap **Connect**. A private gist named `workout-progress.json` is created (or found) automatically.
+3. Tap **Copy setup link** and open it on your other device (phone, laptop). It connects in one tap.
+
+Progress is pushed after every clear/undo/reset and pulled when the app opens or comes back to the foreground. The most recent change wins. The token is stored only in each browser's `localStorage`. **Never commit it to this repo**, because GitHub automatically revokes tokens found in public code.
+
+## 🖼️ Image Credits
+Exercise photos come from [free-exercise-db](https://github.com/yuhonas/free-exercise-db) (public domain / Unlicense), resized and stored in `img/`. To add one, drop `<Name>-0.jpg` and `<Name>-1.jpg` into `img/` and set `image: "<Name>"` on the exercise. Exercises without a photo but with a YouTube watch/shorts `videoUrl` show the video's thumbnail automatically.
 
 ## 🚀 Live Demo
 Access the live application hosted via GitHub Pages:

@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="theme-color" content="#0b1120" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <title>100-Day Bilateral Workout Stack</title>
   <style>
     :root {
@@ -10,162 +13,188 @@
       --card-bg: #1e293b;
       --card-border: #334155;
       --text-main: #f8fafc;
+      --text-body: #cbd5e1;
       --text-muted: #94a3b8;
       --accent: #38bdf8;
       --accent-glow: rgba(56, 189, 248, 0.2);
       --phase-tag: #818cf8;
       --success: #22c55e;
+      --danger: #f87171;
+      --tile-bg: #0f172a;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      line-height: 1.5;
       background-color: var(--bg-color);
       color: var(--text-main);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 1.5rem 1rem 3rem 1rem;
+      padding: max(1.25rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right))
+               max(2.5rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
     }
 
-    header { text-align: center; margin-bottom: 0.75rem; }
-    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    button { font: inherit; }
+    a, button, summary { -webkit-tap-highlight-color: transparent; }
 
-    .canvas-container { position: relative; margin: 0.5rem 0 1rem 0; }
-    canvas { display: block; background: transparent; }
+    header { text-align: center; margin-bottom: 0.25rem; }
+    h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.025em; }
 
-    .stack-wrapper { position: relative; width: 100%; max-width: 500px; }
+    .canvas-container { margin: 0.25rem 0 0.75rem; }
+    canvas { display: block; width: 240px; height: 115px; }
+
+    /* ---------- Card stack ---------- */
+    .stack-wrapper { position: relative; width: 100%; max-width: 560px; }
     .stack-layer {
       position: absolute; left: 0; right: 0; height: 100%; border-radius: 1.25rem;
-      background-color: #141f33; border: 1px solid #233148; transition: all 0.3s ease; z-index: 1;
+      background-color: #141f33; border: 1px solid #233148; z-index: 1;
     }
     .layer-2 { top: 12px; transform: scale(0.92); opacity: 0.4; }
     .layer-1 { top: 6px; transform: scale(0.96); opacity: 0.7; }
 
     .workout-card {
       position: relative; background: var(--card-bg); border: 1px solid var(--card-border);
-      border-radius: 1.25rem; padding: 1.4rem; box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
+      border-radius: 1.25rem; padding: 1.25rem; box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6);
       z-index: 2; transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease;
     }
     .workout-card.cleared { transform: translateY(-40px) scale(0.95); opacity: 0; }
 
     .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem; }
-    .badges-left { display: flex; gap: 0.4rem; align-items: center; }
+    .badges-left { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
     .day-badge {
-      background: var(--accent-glow); color: var(--accent); font-weight: 700; font-size: 0.85rem;
-      padding: 0.25rem 0.65rem; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.4);
+      background: var(--accent-glow); color: var(--accent); font-weight: 700; font-size: 0.875rem;
+      padding: 0.25rem 0.7rem; border-radius: 9999px; border: 1px solid rgba(56, 189, 248, 0.4);
     }
     .phase-badge {
-      background: rgba(129, 140, 248, 0.15); color: var(--phase-tag); font-size: 0.75rem;
-      font-weight: 600; padding: 0.25rem 0.55rem; border-radius: 9999px; border: 1px solid rgba(129, 140, 248, 0.3);
+      background: rgba(129, 140, 248, 0.15); color: var(--phase-tag); font-size: 0.8rem;
+      font-weight: 600; padding: 0.25rem 0.6rem; border-radius: 9999px; border: 1px solid rgba(129, 140, 248, 0.3);
     }
-    .rotation-tag { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+    .rotation-tag { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
     .workout-title { font-size: 1.35rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.25; }
-    .workout-description { font-size: 0.88rem; color: var(--text-muted); font-style: italic; line-height: 1.45; margin-bottom: 1.2rem; }
+    .workout-description { font-size: 0.95rem; color: var(--text-body); line-height: 1.5; margin-bottom: 1.1rem; }
 
-    .exercise-list { list-style: none; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.65rem; }
-    
+    /* ---------- Exercises ---------- */
+    .exercise-list { list-style: none; margin-bottom: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
     .exercise-item {
-      display: flex;
-      gap: 0.75rem;
-      align-items: center;
-      padding: 0.65rem;
-      border-radius: 0.75rem;
-      background: rgba(255, 255, 255, 0.025);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .thumb-link {
-      display: block;
-      width: 52px;
-      height: 52px;
-      border-radius: 0.5rem;
+      border-radius: 0.9rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
       overflow: hidden;
-      flex-shrink: 0;
-      position: relative;
     }
 
-    .exercise-thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: #0f172a;
-      transition: transform 0.2s;
-    }
-    .thumb-link:hover .exercise-thumb {
-      transform: scale(1.08);
+    .exercise-row { display: flex; gap: 0.85rem; padding: 0.75rem; align-items: flex-start; }
+
+    .thumb {
+      width: 84px; height: 84px; border-radius: 0.6rem; overflow: hidden; flex-shrink: 0;
+      background: var(--tile-bg); border: none; padding: 0; cursor: pointer; position: relative;
     }
 
-    .exercise-body {
-      flex-grow: 1;
-      min-width: 0;
+    /* Two-frame photo pair that cross-fades like a GIF */
+    .frames { position: relative; width: 100%; height: 100%; }
+    .frames img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+    .frames img.f1 { animation: frame-swap 2.4s ease-in-out infinite; }
+    @keyframes frame-swap {
+      0%, 38% { opacity: 0; }
+      50%, 88% { opacity: 1; }
+      100% { opacity: 0; }
     }
+    @media (prefers-reduced-motion: reduce) { .frames img.f1 { animation: none; opacity: 0; } }
 
-    .exercise-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 0.2rem;
-      gap: 0.5rem;
-    }
+    .tile-icon { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 2rem; }
 
-    .exercise-name {
-      font-size: 0.9rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
+    .exercise-body { flex: 1; min-width: 0; }
+    .exercise-name { font-size: 1rem; font-weight: 650; line-height: 1.3; }
     .exercise-protocol {
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 0.8rem;
-      flex-shrink: 0;
+      display: inline-block; margin: 0.3rem 0 0.35rem; color: var(--accent); font-weight: 700; font-size: 0.875rem;
+      background: rgba(56, 189, 248, 0.1); padding: 0.1rem 0.5rem; border-radius: 0.4rem;
     }
+    .exercise-cue { font-size: 0.925rem; color: var(--text-body); line-height: 1.45; }
 
-    .exercise-cue {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.35;
-      margin-bottom: 0.3rem;
+    details.howto { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    details.howto summary {
+      list-style: none; cursor: pointer; min-height: 44px; padding: 0 0.85rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.9rem; font-weight: 600; color: var(--accent);
     }
+    details.howto summary::-webkit-details-marker { display: none; }
+    details.howto summary::after { content: "▾"; transition: transform 0.2s; }
+    details.howto[open] summary::after { transform: rotate(180deg); }
+
+    .howto-body { padding: 0 0.85rem 0.9rem; }
+    .howto-media { width: 100%; aspect-ratio: 3 / 2; border-radius: 0.6rem; overflow: hidden; background: var(--tile-bg); margin-bottom: 0.75rem; }
+    .howto-focus { font-size: 0.925rem; color: var(--text-body); margin-bottom: 0.6rem; }
+    .howto-focus strong { color: var(--text-main); }
+    .howto-steps { padding-left: 1.3rem; display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.8rem; }
+    .howto-steps li { font-size: 0.925rem; color: var(--text-body); line-height: 1.45; }
+    .howto-steps li::marker { color: var(--accent); font-weight: 700; }
 
     .video-link {
-      font-size: 0.72rem;
-      color: #38bdf8;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      font-weight: 600;
+      display: inline-flex; align-items: center; gap: 0.35rem; min-height: 40px; padding: 0 0.85rem;
+      font-size: 0.875rem; font-weight: 600; color: var(--accent); text-decoration: none;
+      border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 0.5rem;
     }
-    .video-link:hover {
-      text-decoration: underline;
-    }
+    .video-link:active { background: var(--accent-glow); }
 
+    /* ---------- Buttons ---------- */
     .action-btn {
-      width: 100%; background: var(--success); color: #052e16; border: none; padding: 0.9rem 1.25rem;
-      font-size: 1rem; font-weight: 700; border-radius: 0.75rem; cursor: pointer; display: flex;
+      width: 100%; background: var(--success); color: #052e16; border: none; min-height: 52px; padding: 0.9rem 1.25rem;
+      font-size: 1.05rem; font-weight: 700; border-radius: 0.8rem; cursor: pointer; display: flex;
       justify-content: center; align-items: center; gap: 0.5rem; transition: filter 0.2s, transform 0.1s;
     }
     .action-btn:hover { filter: brightness(1.1); }
     .action-btn:active { transform: scale(0.98); }
 
-    .footer-controls { display: flex; justify-content: space-between; margin-top: 1.25rem; max-width: 500px; width: 100%; padding: 0 0.5rem; }
+    .footer-controls { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 1.25rem; max-width: 560px; width: 100%; }
     .secondary-btn {
-      background: transparent; border: 1px solid #334155; color: var(--text-muted); padding: 0.4rem 0.8rem;
-      border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+      background: transparent; border: 1px solid #334155; color: var(--text-body); min-height: 44px; padding: 0 0.9rem;
+      border-radius: 0.6rem; font-size: 0.9rem; cursor: pointer; transition: border-color 0.2s, color 0.2s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
     }
     .secondary-btn:hover { border-color: #64748b; color: var(--text-main); }
-
     .secondary-btn:disabled { opacity: 0.4; cursor: default; border-color: #334155; color: var(--text-muted); }
+    .footer-controls .secondary-btn { flex: 1; }
 
-    .all-done { text-align: center; padding: 2.5rem 1.5rem; }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); }
+    .sync-dot.ok { background: var(--success); }
+    .sync-dot.error { background: var(--danger); }
+
+    /* ---------- Sync panel ---------- */
+    .sync-panel {
+      width: 100%; max-width: 560px; margin-top: 0.75rem; padding: 1rem; border-radius: 1rem;
+      background: var(--card-bg); border: 1px solid var(--card-border); font-size: 0.925rem; color: var(--text-body);
+    }
+    .sync-panel[hidden] { display: none; }
+    .sync-panel h2 { font-size: 1.05rem; color: var(--text-main); margin-bottom: 0.4rem; }
+    .sync-panel p { margin-bottom: 0.75rem; }
+    .sync-panel a { color: var(--accent); }
+    .sync-panel input {
+      width: 100%; min-height: 44px; padding: 0 0.75rem; margin-bottom: 0.6rem; border-radius: 0.6rem;
+      border: 1px solid var(--card-border); background: var(--tile-bg); color: var(--text-main); font-size: 16px;
+    }
+    .sync-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .sync-status { font-weight: 600; margin-bottom: 0.75rem; }
+    .sync-status.ok { color: var(--success); }
+    .sync-status.error { color: var(--danger); }
+
+    .all-done { text-align: center; padding: 2rem 0.5rem; }
     .all-done h2 { font-size: 1.6rem; color: var(--success); margin-bottom: 0.5rem; }
-    .all-done p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .all-done p { color: var(--text-body); font-size: 1rem; margin-bottom: 1.5rem; }
+
+    /* ---------- Small phones ---------- */
+    @media (max-width: 400px) {
+      h1 { font-size: 1.25rem; }
+      .workout-card { padding: 1rem; border-radius: 1rem; }
+      .exercise-row { padding: 0.65rem; gap: 0.7rem; }
+      .thumb { width: 72px; height: 72px; }
+      .footer-controls .secondary-btn { padding: 0 0.5rem; font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
@@ -175,7 +204,7 @@
   </header>
 
   <div class="canvas-container">
-    <canvas id="progressCanvas" width="240" height="115"></canvas>
+    <canvas id="progressCanvas"></canvas>
   </div>
 
   <div class="stack-wrapper">
@@ -185,44 +214,63 @@
   </div>
 
   <div class="footer-controls">
-    <button class="secondary-btn" id="undoBtn">↩ Undo Last Clear</button>
-    <button class="secondary-btn" id="resetBtn">↻ Reset All</button>
+    <button class="secondary-btn" id="undoBtn">↩ Undo</button>
+    <button class="secondary-btn" id="syncBtn"><span class="sync-dot" id="syncDot"></span> Sync</button>
+    <button class="secondary-btn" id="resetBtn">↻ Reset</button>
   </div>
 
+  <section class="sync-panel" id="syncPanel" hidden></section>
+
   <script src="workouts.js"></script>
+  <script src="sync.js"></script>
   <script>
     const STORAGE_KEY = "bilateral_100_stack_state";
     const STACK = window.WORKOUT_STACK;
     const TOTAL = STACK.length;
+    const Sync = window.WorkoutSync;
+
+    /* ---------- State ---------- */
 
     function freshState() {
-      return { currentIndex: 0, clearedHistory: [] };
+      return { currentIndex: 0, clearedHistory: [], updatedAt: 0 };
+    }
+
+    function normalize(state) {
+      if (!state || !Number.isInteger(state.currentIndex)) return null;
+      return {
+        currentIndex: Math.min(Math.max(state.currentIndex, 0), TOTAL),
+        clearedHistory: Array.isArray(state.clearedHistory) ? state.clearedHistory : [],
+        // Older saves have no timestamp; treat existing progress as "newer" than a blank device.
+        updatedAt: state.updatedAt || (state.currentIndex > 0 ? Date.now() : 0)
+      };
     }
 
     function loadState() {
-      try {
-        const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (state && Number.isInteger(state.currentIndex)) {
-          state.currentIndex = Math.min(Math.max(state.currentIndex, 0), TOTAL);
-          state.clearedHistory = Array.isArray(state.clearedHistory) ? state.clearedHistory : [];
-          return state;
-        }
-      } catch (e) {}
-      return freshState();
+      try { return normalize(JSON.parse(localStorage.getItem(STORAGE_KEY))) || freshState(); }
+      catch (e) { return freshState(); }
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
     }
 
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      appState.updatedAt = Date.now();
+      persist();
+      Sync.schedulePush(appState);
     }
 
     let appState = loadState();
 
+    /* ---------- Progress arc ---------- */
+
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
-    const cardEl = document.getElementById("activeCard");
-    const layer1 = document.getElementById("layer1");
-    const layer2 = document.getElementById("layer2");
-    const undoBtn = document.getElementById("undoBtn");
+    const CANVAS_W = 240, CANVAS_H = 115;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = CANVAS_W * dpr;
+    canvas.height = CANVAS_H * dpr;
+    ctx.scale(dpr, dpr); // crisp on high-density phone screens
 
     function drawArc(cx, cy, radius, endAngle, color) {
       ctx.beginPath();
@@ -234,12 +282,11 @@
     }
 
     function renderCanvasProgress() {
-      const w = canvas.width, h = canvas.height;
       const current = appState.currentIndex;
       const percent = Math.min(100, Math.round((current / TOTAL) * 100));
-      const cx = w / 2, cy = h - 15, radius = 70;
+      const cx = CANVAS_W / 2, cy = CANVAS_H - 15, radius = 70;
 
-      ctx.clearRect(0, 0, w, h);
+      ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
       drawArc(cx, cy, radius, 2 * Math.PI, "#1e293b");
       if (percent > 0) drawArc(cx, cy, radius, Math.PI * (1 + percent / 100), "#38bdf8");
 
@@ -249,34 +296,68 @@
       ctx.fillText(`${percent}%`, cx, cy - 20);
 
       ctx.fillStyle = "#94a3b8";
-      ctx.font = "11px -apple-system, sans-serif";
+      ctx.font = "12px -apple-system, sans-serif";
       ctx.fillText(`${current} of ${TOTAL} Cleared`, cx, cy - 4);
     }
 
+    /* ---------- Exercise markup ---------- */
+
+    function youtubeId(url) {
+      const m = (url || "").match(/(?:youtube\.com\/(?:watch\?v=|shorts\/)|youtu\.be\/)([\w-]{11})/);
+      return m ? m[1] : null;
+    }
+
+    // Returns markup for the exercise visual: animated photo pair, YouTube still, or an icon tile.
+    function mediaHTML(ex, alt) {
+      if (ex.image) {
+        return `<div class="frames">
+                  <img class="f0" src="img/${ex.image}-0.jpg" alt="${alt}" loading="lazy">
+                  <img class="f1" src="img/${ex.image}-1.jpg" alt="" loading="lazy">
+                </div>`;
+      }
+      const yt = youtubeId(ex.videoUrl);
+      if (yt) {
+        return `<div class="frames"><img src="https://i.ytimg.com/vi/${yt}/hqdefault.jpg" alt="${alt}" loading="lazy"></div>`;
+      }
+      return `<div class="tile-icon" aria-hidden="true">${ex.circuit ? "🔁" : "🏋️"}</div>`;
+    }
+
     function exerciseHTML(ex) {
-      const link = `target="_blank" rel="noopener noreferrer"`;
-      const thumb = ex.thumb
-        ? `<a href="${ex.videoUrl || '#'}" ${link} class="thumb-link" title="Watch demonstration">
-             <img src="${ex.thumb}" alt="${ex.name}" class="exercise-thumb" loading="lazy" onerror="this.style.display='none'">
-           </a>`
-        : "";
+      const media = mediaHTML(ex, ex.name);
+      const hasPhoto = !media.includes("tile-icon");
+      const steps = (ex.steps || []).map(s => `<li>${s}</li>`).join("");
       const video = ex.videoUrl
-        ? `<a href="${ex.videoUrl}" ${link} class="video-link">▶ Video Demo ↗</a>`
+        ? `<a href="${ex.videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">▶ Watch video ↗</a>`
         : "";
 
       return `
         <li class="exercise-item">
-          ${thumb}
-          <div class="exercise-body">
-            <div class="exercise-header">
-              <span class="exercise-name" title="${ex.name}">${ex.name}</span>
+          <div class="exercise-row">
+            <button class="thumb" type="button" aria-label="Show how to do ${ex.name}">${media}</button>
+            <div class="exercise-body">
+              <div class="exercise-name">${ex.name}</div>
               <span class="exercise-protocol">${ex.protocol}</span>
+              <div class="exercise-cue">${ex.cue}</div>
             </div>
-            <div class="exercise-cue">${ex.cue}</div>
-            ${video}
           </div>
+          <details class="howto">
+            <summary>How to</summary>
+            <div class="howto-body">
+              ${hasPhoto ? `<div class="howto-media">${media}</div>` : ""}
+              ${ex.focus ? `<p class="howto-focus"><strong>Targets:</strong> ${ex.focus}</p>` : ""}
+              ${steps ? `<ol class="howto-steps">${steps}</ol>` : ""}
+              ${video}
+            </div>
+          </details>
         </li>`;
     }
+
+    /* ---------- Rendering ---------- */
+
+    const cardEl = document.getElementById("activeCard");
+    const layer1 = document.getElementById("layer1");
+    const layer2 = document.getElementById("layer2");
+    const undoBtn = document.getElementById("undoBtn");
 
     function render() {
       const idx = appState.currentIndex;
@@ -315,6 +396,16 @@
       document.getElementById("clearBtn").addEventListener("click", clearCurrentWorkout);
     }
 
+    // Tapping a thumbnail toggles that exercise's "How to" section.
+    cardEl.addEventListener("click", e => {
+      const thumb = e.target.closest(".thumb");
+      if (!thumb) return;
+      const details = thumb.closest(".exercise-item").querySelector("details");
+      details.open = !details.open;
+    });
+
+    /* ---------- Actions ---------- */
+
     function clearCurrentWorkout(e) {
       e.currentTarget.disabled = true; // prevent double-clears during the animation
       cardEl.classList.add("cleared");
@@ -329,6 +420,7 @@
         appState.currentIndex++;
         saveState();
         render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }, 250);
     }
 
@@ -350,7 +442,84 @@
     undoBtn.addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
 
+    /* ---------- Cross-device sync (GitHub Gist) ---------- */
+
+    const syncPanel = document.getElementById("syncPanel");
+    const syncDot = document.getElementById("syncDot");
+    let syncStatus = { text: Sync.isConnected() ? "Connected" : "Not connected", kind: "" };
+
+    Sync.onStatus(status => {
+      syncStatus = status;
+      syncDot.className = "sync-dot " + (status.connected ? status.kind : "");
+      if (!syncPanel.hidden) renderSyncPanel();
+    });
+
+    async function pullRemote() {
+      const remote = normalize(await Sync.pull(appState));
+      if (remote) {
+        appState = remote;
+        persist(); // keep the remote timestamp; don't bump it
+        render();
+      }
+    }
+
+    async function connectWithToken(token) {
+      if (await Sync.connect(token, () => appState)) await pullRemote();
+    }
+
+    function renderSyncPanel() {
+      const tokenUrl = "https://github.com/settings/tokens/new?scopes=gist&description=Workout%20Stack%20sync";
+      if (!Sync.isConnected()) {
+        syncPanel.innerHTML = `
+          <h2>Sync across devices</h2>
+          <p>Progress is saved to a private GitHub Gist. Create a token with only the
+             <strong>gist</strong> scope (<a href="${tokenUrl}" target="_blank" rel="noopener">create one here</a>),
+             then paste it below. Use the same token on each device.</p>
+          ${syncStatus.kind === "error" ? `<p class="sync-status error">${syncStatus.text}</p>` : ""}
+          <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ghp_…">
+          <div class="sync-actions">
+            <button class="secondary-btn" id="connectBtn">Connect</button>
+          </div>`;
+        document.getElementById("connectBtn").addEventListener("click", () => {
+          const token = document.getElementById("tokenInput").value;
+          if (token.trim()) connectWithToken(token);
+        });
+        return;
+      }
+      syncPanel.innerHTML = `
+        <h2>Sync across devices</h2>
+        <p class="sync-status ${syncStatus.kind}">${syncStatus.text}</p>
+        <p>Open the setup link on your other device to connect it in one tap.</p>
+        <div class="sync-actions">
+          <button class="secondary-btn" id="syncNowBtn">Sync now</button>
+          <button class="secondary-btn" id="copyLinkBtn">Copy setup link</button>
+          <button class="secondary-btn" id="disconnectBtn">Disconnect</button>
+        </div>`;
+      document.getElementById("syncNowBtn").addEventListener("click", pullRemote);
+      document.getElementById("disconnectBtn").addEventListener("click", () => Sync.disconnect());
+      document.getElementById("copyLinkBtn").addEventListener("click", async e => {
+        const link = Sync.setupLink();
+        try { await navigator.clipboard.writeText(link); e.target.textContent = "Copied ✓"; }
+        catch (err) { prompt("Copy this link:", link); }
+      });
+    }
+
+    document.getElementById("syncBtn").addEventListener("click", () => {
+      syncPanel.hidden = !syncPanel.hidden;
+      if (!syncPanel.hidden) renderSyncPanel();
+    });
+
+    // Re-check for progress from other devices whenever the app comes back to the foreground.
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") pullRemote();
+    });
+
+    /* ---------- Start ---------- */
+
     render();
+    const linkToken = Sync.tokenFromUrl();
+    if (linkToken) connectWithToken(linkToken);
+    else pullRemote();
   </script>
 </body>
 </html>
