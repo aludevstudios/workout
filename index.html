@@ -161,7 +161,11 @@
     }
     .secondary-btn:hover { border-color: #64748b; color: var(--text-main); }
 
+    .secondary-btn:disabled { opacity: 0.4; cursor: default; border-color: #334155; color: var(--text-muted); }
+
     .all-done { text-align: center; padding: 2.5rem 1.5rem; }
+    .all-done h2 { font-size: 1.6rem; color: var(--success); margin-bottom: 0.5rem; }
+    .all-done p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
   </style>
 </head>
 <body>
@@ -188,173 +192,165 @@
   <script src="workouts.js"></script>
   <script>
     const STORAGE_KEY = "bilateral_100_stack_state";
+    const STACK = window.WORKOUT_STACK;
+    const TOTAL = STACK.length;
 
-    function loadState() {
-      const data = localStorage.getItem(STORAGE_KEY);
-      if (data) {
-        try { return JSON.parse(data); } catch(e) {}
-      }
+    function freshState() {
       return { currentIndex: 0, clearedHistory: [] };
     }
 
-    function saveState(state) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function loadState() {
+      try {
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (state && Number.isInteger(state.currentIndex)) {
+          state.currentIndex = Math.min(Math.max(state.currentIndex, 0), TOTAL);
+          state.clearedHistory = Array.isArray(state.clearedHistory) ? state.clearedHistory : [];
+          return state;
+        }
+      } catch (e) {}
+      return freshState();
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
     }
 
     let appState = loadState();
 
     const canvas = document.getElementById("progressCanvas");
     const ctx = canvas.getContext("2d");
+    const cardEl = document.getElementById("activeCard");
+    const layer1 = document.getElementById("layer1");
+    const layer2 = document.getElementById("layer2");
+    const undoBtn = document.getElementById("undoBtn");
+
+    function drawArc(cx, cy, radius, endAngle, color) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, Math.PI, endAngle, false);
+      ctx.lineWidth = 10;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = color;
+      ctx.stroke();
+    }
 
     function renderCanvasProgress() {
       const w = canvas.width, h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
-
-      const total = window.WORKOUT_STACK.length;
       const current = appState.currentIndex;
-      const percent = Math.min(100, Math.round((current / total) * 100));
-
+      const percent = Math.min(100, Math.round((current / TOTAL) * 100));
       const cx = w / 2, cy = h - 15, radius = 70;
 
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius, Math.PI, 2 * Math.PI, false);
-      ctx.lineWidth = 10;
-      ctx.strokeStyle = "#1e293b";
-      ctx.lineCap = "round";
-      ctx.stroke();
+      ctx.clearRect(0, 0, w, h);
+      drawArc(cx, cy, radius, 2 * Math.PI, "#1e293b");
+      if (percent > 0) drawArc(cx, cy, radius, Math.PI * (1 + percent / 100), "#38bdf8");
 
-      if (percent > 0) {
-        const progressEnd = Math.PI + (Math.PI * (percent / 100));
-        ctx.beginPath();
-        ctx.arc(cx, cy, radius, Math.PI, progressEnd, false);
-        ctx.lineWidth = 10;
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineCap = "round";
-        ctx.stroke();
-      }
-
+      ctx.textAlign = "center";
       ctx.fillStyle = "#f8fafc";
       ctx.font = "bold 20px -apple-system, sans-serif";
-      ctx.textAlign = "center";
       ctx.fillText(`${percent}%`, cx, cy - 20);
 
       ctx.fillStyle = "#94a3b8";
       ctx.font = "11px -apple-system, sans-serif";
-      ctx.fillText(`${current} of ${total} Cleared`, cx, cy - 4);
+      ctx.fillText(`${current} of ${TOTAL} Cleared`, cx, cy - 4);
     }
 
-    const cardEl = document.getElementById("activeCard");
-    const layer1 = document.getElementById("layer1");
-    const layer2 = document.getElementById("layer2");
+    function exerciseHTML(ex) {
+      const link = `target="_blank" rel="noopener noreferrer"`;
+      const thumb = ex.thumb
+        ? `<a href="${ex.videoUrl || '#'}" ${link} class="thumb-link" title="Watch demonstration">
+             <img src="${ex.thumb}" alt="${ex.name}" class="exercise-thumb" loading="lazy" onerror="this.style.display='none'">
+           </a>`
+        : "";
+      const video = ex.videoUrl
+        ? `<a href="${ex.videoUrl}" ${link} class="video-link">▶ Video Demo ↗</a>`
+        : "";
 
-    function renderCard() {
+      return `
+        <li class="exercise-item">
+          ${thumb}
+          <div class="exercise-body">
+            <div class="exercise-header">
+              <span class="exercise-name" title="${ex.name}">${ex.name}</span>
+              <span class="exercise-protocol">${ex.protocol}</span>
+            </div>
+            <div class="exercise-cue">${ex.cue}</div>
+            ${video}
+          </div>
+        </li>`;
+    }
+
+    function render() {
       const idx = appState.currentIndex;
-      const remaining = window.WORKOUT_STACK.length - idx;
+      const remaining = TOTAL - idx;
 
       layer1.style.display = remaining > 1 ? "block" : "none";
       layer2.style.display = remaining > 2 ? "block" : "none";
+      undoBtn.disabled = idx === 0;
+      cardEl.className = "workout-card";
+      renderCanvasProgress();
 
-      if (idx >= window.WORKOUT_STACK.length) {
+      if (remaining <= 0) {
         cardEl.innerHTML = `
           <div class="all-done">
-            <h2 style="font-size:1.6rem; color:var(--success); margin-bottom:0.5rem;">🎉 100 Sessions Conquered!</h2>
-            <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
-              You have completed the entire 100-session bilateral mobility, snowboard specificity, and alpine endurance program!
-            </p>
-            <button class="action-btn" onclick="resetChallenge()">Restart Challenge</button>
-          </div>
-        `;
-        renderCanvasProgress();
+            <h2>🎉 ${TOTAL} Sessions Conquered!</h2>
+            <p>You have completed the entire ${TOTAL}-session bilateral mobility, snowboard specificity, and alpine endurance program!</p>
+            <button class="action-btn" id="restartBtn">Restart Challenge</button>
+          </div>`;
+        document.getElementById("restartBtn").addEventListener("click", resetChallenge);
         return;
       }
 
-      const workout = window.WORKOUT_STACK[idx];
-      cardEl.className = "workout-card";
-
-      const exercisesHTML = workout.exercises.map(ex => {
-        const thumbHTML = ex.thumb 
-          ? `<a href="${ex.videoUrl || '#'}" target="_blank" rel="noopener noreferrer" class="thumb-link" title="Watch demonstration">
-               <img src="${ex.thumb}" alt="${ex.name}" class="exercise-thumb" loading="lazy" onerror="this.style.display='none'">
-             </a>`
-          : '';
-
-        const videoHTML = ex.videoUrl
-          ? `<a href="${ex.videoUrl}" target="_blank" rel="noopener noreferrer" class="video-link">▶ Video Demo ↗</a>`
-          : '';
-
-        return `
-          <li class="exercise-item">
-            ${thumbHTML}
-            <div class="exercise-body">
-              <div class="exercise-header">
-                <span class="exercise-name" title="${ex.name}">${ex.name}</span>
-                <span class="exercise-protocol">${ex.protocol}</span>
-              </div>
-              <div class="exercise-cue">${ex.cue}</div>
-              ${videoHTML}
-            </div>
-          </li>
-        `;
-      }).join("");
-
+      const workout = STACK[idx];
       cardEl.innerHTML = `
         <div class="card-meta">
           <div class="badges-left">
-            <span class="day-badge">Session ${workout.day} / 100</span>
+            <span class="day-badge">Session ${workout.day} / ${TOTAL}</span>
             <span class="phase-badge">${workout.phase}</span>
           </div>
           <span class="rotation-tag">${workout.rotationCode}</span>
         </div>
         <h2 class="workout-title">${workout.title}</h2>
         <p class="workout-description">${workout.description}</p>
-        <ul class="exercise-list">
-          ${exercisesHTML}
-        </ul>
-        <button class="action-btn" id="clearBtn">
-          ✓ Clear Session ${workout.day} & Next
-        </button>
-      `;
-
+        <ul class="exercise-list">${workout.exercises.map(exerciseHTML).join("")}</ul>
+        <button class="action-btn" id="clearBtn">✓ Clear Session ${workout.day} & Next</button>`;
       document.getElementById("clearBtn").addEventListener("click", clearCurrentWorkout);
-      renderCanvasProgress();
     }
 
-    function clearCurrentWorkout() {
+    function clearCurrentWorkout(e) {
+      e.currentTarget.disabled = true; // prevent double-clears during the animation
       cardEl.classList.add("cleared");
 
       setTimeout(() => {
+        const workout = STACK[appState.currentIndex];
         appState.clearedHistory.push({
-          day: window.WORKOUT_STACK[appState.currentIndex].day,
-          rotation: window.WORKOUT_STACK[appState.currentIndex].rotationCode,
+          day: workout.day,
+          rotation: workout.rotationCode,
           clearedAt: new Date().toISOString()
         });
         appState.currentIndex++;
-        saveState(appState);
-        renderCard();
+        saveState();
+        render();
       }, 250);
     }
 
     function undoLastClear() {
-      if (appState.currentIndex > 0) {
-        appState.currentIndex--;
-        appState.clearedHistory.pop();
-        saveState(appState);
-        renderCard();
-      }
+      if (appState.currentIndex === 0) return;
+      appState.currentIndex--;
+      appState.clearedHistory.pop();
+      saveState();
+      render();
     }
 
     function resetChallenge() {
-      if (confirm("Reset the 100-day stack? This will clear all progress and start back at Session 1.")) {
-        appState = { currentIndex: 0, clearedHistory: [] };
-        saveState(appState);
-        renderCard();
-      }
+      if (!confirm(`Reset the ${TOTAL}-day stack? This will clear all progress and start back at Session 1.`)) return;
+      appState = freshState();
+      saveState();
+      render();
     }
 
-    document.getElementById("undoBtn").addEventListener("click", undoLastClear);
+    undoBtn.addEventListener("click", undoLastClear);
     document.getElementById("resetBtn").addEventListener("click", resetChallenge);
 
-    renderCard();
+    render();
   </script>
 </body>
 </html>

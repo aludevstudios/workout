@@ -8,7 +8,7 @@ A minimalist, distraction-free 100-day exercise planner built as a physical-styl
 - **Interactive Canvas Visualizer**: An HTML5 Canvas arc rendering completion percentage, card count, and progress.
 - **Zero-Backend Persistence**: All progress, streak counts, and timestamps persist in browser `localStorage`.
 - **Fail-Safe Undo**: Undo accidental card clears with one click.
-- **Pluggable Data**: Easily update or replace the workout plan by editing the `WORKOUT_STACK` array in `index.html`.
+- **Pluggable Data**: Easily update or replace the workout plan by editing `WORKOUT_TEMPLATES`, `ROTATION`, or `TOTAL_DAYS` in `workouts.js`.
 
 ## 🚀 Live Demo
 Access the live application hosted via GitHub Pages:

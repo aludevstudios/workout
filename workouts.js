@@ -155,27 +155,16 @@ const WORKOUT_TEMPLATES = {
 };
 
 const ROTATION = ["A", "B", "C"];
-const WORKOUT_STACK = [];
+const TOTAL_DAYS = 100;
 
-for (let day = 1; day <= 100; day++) {
-  const type = ROTATION[(day - 1) % 3];
-  const template = WORKOUT_TEMPLATES[type];
-
-  let phase = "Phase 1: Mobilize & Reset";
-  if (day > 70) {
-    phase = "Phase 3: Alpine Endurance";
-  } else if (day > 30) {
-    phase = "Phase 2: Snowboard Specificity";
-  }
-
-  WORKOUT_STACK.push({
-    day: day,
-    rotationCode: template.code,
-    phase: phase,
-    title: template.title,
-    description: template.description,
-    exercises: template.exercises
-  });
+function phaseForDay(day) {
+  if (day > 70) return "Phase 3: Alpine Endurance";
+  if (day > 30) return "Phase 2: Snowboard Specificity";
+  return "Phase 1: Mobilize & Reset";
 }
 
-window.WORKOUT_STACK = WORKOUT_STACK;
+window.WORKOUT_STACK = Array.from({ length: TOTAL_DAYS }, (_, i) => {
+  const day = i + 1;
+  const { code, title, description, exercises } = WORKOUT_TEMPLATES[ROTATION[i % ROTATION.length]];
+  return { day, rotationCode: code, phase: phaseForDay(day), title, description, exercises };
+});
